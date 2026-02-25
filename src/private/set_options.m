@@ -196,8 +196,8 @@ end
 if isfield(options, "alpha_init")
     if isscalar(options.alpha_init)
         options.alpha_init = options.alpha_init * ones(options.num_blocks, 1);
-    % elseif length(options.alpha_init) == options.num_blocks
-    %     options.alpha_init = options.alpha_init(:);
+    elseif isnumvec(options.alpha_init) && (length(options.alpha_init) == options.num_blocks)
+        options.alpha_init = options.alpha_init(:);
     % elseif strcmpi(options.alpha_init, "auto")
     %     % Calculate Smart Alpha
     %     alpha_vec = zeros(n, 1);
