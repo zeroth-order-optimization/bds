@@ -1492,7 +1492,25 @@ function x = cbds_orig_alpha_init_auto_test(fun, x0)
     option.expand = 2;
     option.shrink = 0.5;
 
-    option.alpha_init = 'auto';
+    % Parameters (Data-Driven Optimized)
+    AlphaFloor    = 1e-6; % 完美兜底，应对如 KIRBY2LS 中的 1e-05 变量
+    DeltaRelative = 1.0;  % 从 0.05 提升至 0.1，让 BARD, BEALE 等 O(1) 问题起步更快
+    % DeltaZero     = 1.0;  % 从 1e-2 提升至 1.0，直接解决 ALLINITU 等全零初始点早期的无效膨胀
+
+    % Calculate Smart Alpha
+    n = numel(x0);
+    alpha_vec = zeros(n, 1);
+    for i = 1:n
+        if x0(i) ~= 0
+            val = DeltaRelative * abs(x0(i));
+            alpha_vec(i) = max(val, AlphaFloor);
+        else
+            % alpha_vec(i) = max(DeltaZero, AlphaFloor);
+            alpha_vec(i) = 1;
+        end
+    end
+
+    option.alpha_init = alpha_vec;
 
     x = bds(fun, x0, option);
     
