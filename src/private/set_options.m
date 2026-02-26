@@ -212,30 +212,32 @@ if isfield(options, "alpha_init")
         %         alpha_vec(i) = 1;
         %     end
         % end
-        
-        % for i= 1:n
-        %     val = abs(x0(i));
-        %     if val == 0
-        %         alpha_vec(i) = 1;
-        %     else
-        %         alpha_vec(i) = max(options.StepTolerance(i), min(val, max(1, 0.1*val)));
-        %     end
-        % end
 
-        % 提取全局最大尺度，并设定万分之一的全局保护底线
-        global_floor=max(abs(x0))*1e-4; 
-
-        for i=1:n
-        val=abs(x0(i));
-        if val==0
-        % 零变量不仅要破除 0，还要跟上全局宏观尺度
-        alpha_vec(i)=max(1.0,global_floor);
+        % 提取非零元素计算初始点条件数 (Scale Ratio)
+        abs_x = abs(x0);
+        nz = abs_x(abs_x>0);
+        if isempty(nz)
+            r = 1;
         else
-        % 核心融合：在原有的独立缩放基础上，叠加全局底线保护
-        alpha_vec(i)=max([1e-6,global_floor,min(val,max(1.0,0.1*val))]);
+            r = max(nz)/min(nz);
         end
+
+        for i = 1:n
+            val = abs_x(i);
+            if val == 0
+                alpha_vec(i) = 1;
+                elseif val <= 1
+                    alpha_vec(i) = max(val, options.StepTolerance(i)); % 微观变量永远保持原比例兜底
+                else
+                    % 宏观变量双轨制
+                    if r <= 100
+                        alpha_vec(i) = val; % S2MPJ 模式：保留 100% 步长，一击回城！
+                    else
+                        alpha_vec(i) = 1 + log10(val); % Matcutest 模式：开启极度防越界阻尼！
+                    end
+            end
         end
-        options.alpha_init = alpha_vec;
+        options.alpha_init=alpha_vec;
     else
         error('BDS:set_options:InvalidAlphaInit', ...
             'options.alpha_init must be a positive scalar, a vector of length options.num_blocks, or "auto".');
