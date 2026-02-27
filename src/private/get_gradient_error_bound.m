@@ -1,5 +1,5 @@
 function upper_bound = get_gradient_error_bound(alpha_all, batch_size, direction_indices_per_block, ...
-                        n, positive_direction_set, direction_selection_probability_matrix, estimated_lipschitz_constant)
+                        n, positive_direction_set, direction_selection_probability_matrix, lipschitz_constant)
 %GET_GRADIENT_ERROR_BOUND calculates an upper bound on the gradient estimation error.
 %
 
@@ -19,10 +19,6 @@ function upper_bound = get_gradient_error_bound(alpha_all, batch_size, direction
     alpha_powers = alpha_full.^4;    
     direction_norms_powers = vecnorm(positive_direction_set).^6;
 
-    % The default value for the Hessian Lipschitz constant is 1e3.
-    % If the user has a problem specific estimate, use that value instead.
-    % This improves the reliability of the error bound estimate.
-    lipschitz_constant = estimated_lipschitz_constant;
     if batch_size == num_blocks
         upper_bound = (lipschitz_constant / (6 * svds(positive_direction_set, 1, "smallest"))) * ...
                         sqrt(sum(direction_norms_powers .* alpha_powers'));

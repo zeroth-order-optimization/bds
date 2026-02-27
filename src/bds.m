@@ -165,9 +165,14 @@ function [xopt, fopt, exitflag, output] = bds(fun, x0, options)
 %                               range, the algorithm terminates.
 %                               It should be a positive number. 
 %                               Default: 1e-6.
-%  estimated_lipschitz_constant An estimate of the Lipschitz constant of the objective function. 
-%                               It is used for computing the gradient error bound when 
-%                               use_estimated_gradient_stop is true. It should be a positive number.
+%   lipschitz_constant          An estimate of the Lipschitz constant of the objective function.
+%                               This parameter is utilized to compute the gradient error bound
+%                               when the option use_estimated_gradient_stop is true.
+%                               Users are encouraged to provide a problem-specific estimate if 
+%                               available, as this can enhance the reliability of the gradient 
+%                               error bound.
+%                               The value must be a positive scalar.
+%                               Default: 1e3.
 %
 %   The following options are related to output and debugging.
 %   output_xhist                Whether to output the history of points visited.
@@ -305,7 +310,7 @@ grad_tol = options.grad_tol;
 norm_grad_window = nan(1, grad_window_size);
 record_gradient_norm = false;
 
-estimated_lipschitz_constant = options.estimated_lipschitz_constant;
+lipschitz_constant = options.lipschitz_constant;
 
 % Get the direction set.
 D = get_direction_set(n, options);
@@ -728,7 +733,7 @@ for iter = 1:maxit
                                                     batch_size, grouped_direction_indices, n, ...
                                                     positive_direction_set, ...
                                                     direction_selection_probability_matrix, ...
-                                                    estimated_lipschitz_constant);
+                                                    lipschitz_constant);
 
                 % Set up the reference gradient norm for the stopping criterion.
                 %

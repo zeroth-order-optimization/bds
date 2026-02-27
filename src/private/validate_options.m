@@ -88,10 +88,10 @@ if isfield(options, 'grad_tol')
     end
 end
 
-% estimated_lipschitz_constant
-if isfield(options, 'estimated_lipschitz_constant')
-    if ~(isrealscalar(options.estimated_lipschitz_constant) && options.estimated_lipschitz_constant > 0)
-        error('options.estimated_lipschitz_constant must be a positive real scalar.');
+% lipschitz_constant
+if isfield(options, 'lipschitz_constant')
+    if ~(isrealscalar(options.lipschitz_constant) && options.lipschitz_constant > 0)
+        error('options.lipschitz_constant must be a positive real scalar.');
     end
 end
 

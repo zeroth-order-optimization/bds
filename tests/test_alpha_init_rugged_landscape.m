@@ -29,7 +29,7 @@ x0    = 110000 * ones(n, 1);
 
 % NEW (Rigorous):
 % Aligns the cosine valley exactly with the quadratic bottom.
-fun = @(x) sum((x - x_opt).^2) + 2e5 * sum(1 - cos(1.0 * (x - x_opt)));
+fun = @(x) sum((x - x_opt).^2) + 2e5 * sum(1 - cos(x - x_opt));
 
 fprintf('============================================================\n');
 fprintf('TEST CASE: 3D Deep Trap Basin\n');
@@ -46,25 +46,10 @@ fprintf('\n--- [1] Running Default Strategy (alpha = 1.0) ---\n');
 [x_def, f_def, exit_def, out_def] = bds(fun, x0, opts_def);
 
 %% 2. Run Smart Initialization Strategy
-% Parameters (Standard)
-AlphaFloor    = 1e-3;
-DeltaRelative = 0.05; 
-DeltaZero     = 1e-2;
-
-% Calculate Smart Alpha
-alpha_vec = zeros(n, 1);
-for i = 1:n
-    if x0(i) ~= 0
-        val = DeltaRelative * abs(x0(i));
-        alpha_vec(i) = max(val, AlphaFloor);
-    else
-        alpha_vec(i) = max(DeltaZero, AlphaFloor);
-    end
-end
 
 opts_new = struct();
 opts_new.num_blocks = n;
-opts_new.alpha_init = alpha_vec;
+opts_new.alpha_init = 'auto';
 opts_new.iprint = 1;
 
 fprintf('\n--- [2] Running Smart Init Strategy (Scaled Alpha) ---\n');
